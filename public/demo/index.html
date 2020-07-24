@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<meta charset=utf-8>
+<meta name=description content="">
+<meta name=viewport content="width=device-width, initial-scale=1">
+<head>
+  <style>
+    #url1{width: 350px;}
+    #video1{border:1px solid red;}
+  </style>
+</head>
+
+
+<body>
+  <h1>NodePlayer.js</h1>
+  <div>
+    <div>纯JavaScript的简单实时流播放器</div>
+    <canvas id="video1" width=640 height=480></canvas>
+  </div>
+
+  <!-- <input id="url1" type="url" value="http://192.168.1.115:8000/live/STREAM_NAME.flv" /> -->
+  <!-- <input id="url1" type="url" value="http://117.27.251.17:8080/live/BA03.flv" /> -->
+  <input id="url1" type="url" value="https://1011.hlsplay.aodianyun.com/demo/game.flv" />
+
+  <input id="play1" type="button" value="Play" onclick="startFunc()"/>
+  <input id="stop1" type="button" value="Stop" onclick="stopFunc()"/>
+
+  <br />
+  <select onchange="startChange.call(this)">
+    <option value="http://117.27.251.17:8080/live/BA03.flv">http://117.27.251.17:8080/live/BA03.flv</option>
+    <option value="http://192.168.1.115:8000/live/STREAM_NAME.flv">http://192.168.1.115:8000/live/STREAM_NAME.flv</option>
+    <option value="ws://192.168.1.115:8000/live/STREAM_NAME.flv">ws://192.168.1.115:8000/live/STREAM_NAME.flv</option>
+    <option value="https://1011.hlsplay.aodianyun.com/demo/game.flv">https://1011.hlsplay.aodianyun.com/demo/game.flv</option>
+  </select>
+</body>
+
+</html>
+
+
+<script src="NodePlayer.min.js"></script>
+<!-- <script type="text/javascript" src="http://cdn.nodemedia.cn/NodePlayer/0.3.0/NodePlayer.min.js"></script> -->
+<!-- <script type="text/javascript" src="http://cdn.nodemedia.cn/NodePlayer/0.3.1/NodePlayer.min.js"></script> -->
+<script>
+
+
+  NodePlayer.debug(true);
+
+  var player1 = new NodePlayer();
+  player1.id = "player1";
+  player1.useMSE();
+  player1.setView('video1');
+  player1.setScaleMode(1);
+  player1.skipLoopFilter(32);
+  player1.setBufferTime(500);
+  // player1.enableAudio(false);//没什么用
+
+
+  player1.on('start', () => {
+    console.log("%c%s", "color:#1FBF00",'NodePlayer开始');
+  });
+  player1.on('close', () => {
+    console.log( "%c%s", "color:#955555",'NodePlayer关闭');
+  });
+  player1.on('error', (err) => {
+    console.log("%c%s", "color:#FC1430", 'NodePlayer错误',err);
+  });
+
+  startFunc();
+
+  function startFunc() {
+    console.log('======触发播放========');
+    var url = document.getElementById("url1");
+    player1.stop();
+    player1.start(url.value);
+  }
+  function stopFunc() {
+    console.log('======停止播放========');
+    player1.stop();
+  }
+  function startChange(){
+    player1.stop();
+    player1.start(this.options[this.selectedIndex].value);
+  }
+
+</script>

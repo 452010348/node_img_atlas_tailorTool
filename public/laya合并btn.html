@@ -1,0 +1,169 @@
+<!--
+    H5图片裁剪功
+    QQ 452010348
+ -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>H5图片裁剪</title>
+<link rel="stylesheet" href="">
+<meta name=viewport content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="js/layui/css/layui.css">
+<style type="text/css">
+    #js-maker-canvas canvas{border:1px solid #000;
+        -webkit-box-sizing: border-box;
+           -moz-box-sizing: border-box;
+                box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+
+
+<div class="layui-collapse">
+
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">按钮</h2>
+    <div class="layui-colla-content layui-show">
+
+        <!-- <button type="button" class="layui-btn" style="position:relative;" >
+            <i class="layui-icon">&#xe67c;</i>上传图
+            <input id="js-img-file" type="file" style="width:100%;height:100%;padding:0;margin:0;position:absolute;left:0;top:0;bottom:0;right:0;opacity:0;">
+        </button>
+
+
+
+        <button id="downLoad" class="layui-btn layui-btn-normal layui-hide">批量下载下载</button> -->
+        <button class="layui-btn layui-btn-normal" onclick="window.location.reload();">重新加载</button>
+        <!-- 拖拽上传 -->
+        <style type="text/css">
+            .img_show{width:100%;height:250px;border:1px solid #e3e3e3;margin-top:10px;position:relative;
+                background-image:-webkit-repeating-linear-gradient(
+                   30deg,
+                   #F0F0F0 0,
+                   #E8E6E6 1px,
+                   #F5F5F5 0px,
+                   #E4E4E4 9px
+               );
+            }
+            .img_show p{
+                width:80%;height:100px;line-height:100px;font-size:34px;color:#fff;position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;text-align:center;
+
+                text-shadow:
+                0 0 10px #ff00ff,
+                0 0 20px #ff0066,
+                0 0 30px #cccc00,
+                0 0 50px #000;
+            }
+            .img_show img{position:absolute;left:0;top:0;width:100%;height:100%;cursor:nesw-resize;z-index:999;}
+            /*文本不换行 超出隐藏 省略..*/
+            .css-ellipsis{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden;}
+        </style>
+        <div id="js-img_drag_box" class="img_show"><p class="css-ellipsis">连续拖拽图片放到此处</p></div>
+        <!-- 拖拽上传 -->
+    </div>
+  </div>
+
+
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">裁图</h2>
+    <div id="js-maker-canvas" class="layui-colla-content layui-show" style="background:url(images/re-bg.jpg) repeat">
+        <canvas id="can" width="0" height="0">
+
+        </canvas>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
+
+<script type="text/javascript" src="js/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/ObjTree/ObjTree.js"></script>
+
+
+<script>
+//注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+layui.use(['element','layer','jquery','form'], function(){
+    element = layui.element;//面板折叠手风琴
+    layer = layui.layer;//弹窗
+    form = layui.form();
+    $ = layui.jquery;
+
+    img_drag(document.getElementById("js-img_drag_box"));
+
+    //拖拽上传
+    function img_drag(_obj){
+        var box = _obj;
+        //目标元素进入时触发
+        box.ondragenter = function(ev){
+            var ev = ev || window.event;
+            ev.dataTransfer.effectAllowed = "copyLink";
+        }
+        //目标元素进入过程触发
+        box.ondragover = function(ev){
+            ev.preventDefault();//阻止默认事件        //就是当把文件拖入浏览器的时候会变成阅览文件
+            this.lastChild.innerHTML = '请松开鼠标左键';
+        }
+         //目标元素出去触发
+        box.ondragleave = function(){
+            this.lastChild.innerHTML = '图片可拖到此处';
+        }
+        //目标元素拖入结束
+        box.ondrop = function(ev){
+            ev.preventDefault();//阻止默认事件        //就是当把文件拖入浏览器的时候会变成阅览文件
+            var file = ev.dataTransfer.files;   //获取外部拖拽的文件
+            console.log( file[0] );
+            for(let o in file){
+              var reader = new FileReader();
+              reader.readAsDataURL( file[o] );
+              reader.onload = function(e) {
+                  var imgData = e.target.result;
+                  var img = new Image();
+                  img.src = imgData;
+                  img.onload = function(){
+                      window.arr.push(this);
+                      window.canvas.width = this.width;
+                      window.canvas.height = window.arr.length * this.height;
+                      ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas清屏
+                      window.arr.forEach(function(el,i){
+                          ctx.drawImage(el, 0, (i*this.height), this.width, this.height); // 将图像绘制到canvas上
+                      },this);
+                  }
+              }
+            }
+        }
+    }
+
+    window.canvas = document.querySelector('#can');
+    window.ctx = canvas.getContext("2d");
+    window.arr = [];
+
+
+
+
+});
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+<script type="text/javascript">
+
+
+</script>

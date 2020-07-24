@@ -1,0 +1,518 @@
+<!--
+    H5图片裁剪功
+    QQ 452010348
+ -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>H5图片裁剪</title>
+<link rel="stylesheet" href="">
+<meta name=viewport content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="js/layui/css/layui.css">
+<style type="text/css">
+    #js-maker-canvas canvas{border:1px solid #000;
+        -webkit-box-sizing: border-box;
+           -moz-box-sizing: border-box;
+                box-sizing: border-box;
+    }
+</style>
+</head>
+<body>
+
+
+<div class="layui-collapse">
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">介绍</h2>
+    <div class="layui-colla-content">
+        <pre>
+            时间：2017年8月25日 11:32:28
+            作者：luck
+            Q  Q：452010348
+            说明：
+                在 /public 目录下test.png 作为测试上传图片
+                暂时先复制JSON到 res.js 代替需要裁剪的坐标
+                node环境默认批量下载到桌面自动创建 "luck_images"目录
+                【使用顺序是-1.上填写json,2.再上传图片,3批量下载】
+
+                2017年9月7日 00:41:37：
+                    新增图片拖拽上传
+                2017年11月16日 20:55:16
+                    新增两种引擎的json格式粘贴到文本域裁图
+                    新增本地存储保留上一次JSON格式
+        </pre>
+    </div>
+  </div>
+
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">按钮</h2>
+    <div class="layui-colla-content layui-show">
+
+        <button type="button" class="layui-btn" style="position:relative;" >
+            <i class="layui-icon">&#xe67c;</i>上传图
+            <input id="js-img-file" type="file" style="width:100%;height:100%;padding:0;margin:0;position:absolute;left:0;top:0;bottom:0;right:0;opacity:0;">
+        </button>
+
+
+        <div class="layui-inline">
+            <form class="layui-form" style="width:200px;">
+                <!-- <div class="layui-form-item"> -->
+                    <!-- <div class="layui-inline"> -->
+                        <!-- <label class="layui-form-label">行内表单</label> -->
+                        <!-- <div class="layui-input-block"> -->
+                            <select name="quiz" class="js-opt">
+                                <option value="0">【引擎】LayaBox</option>
+                                <option value="1">【引擎】白鹭</option>
+                                <option value="2">【FLASH】AG-XML-组</option>
+                                <option value="3">【FLASH】AG-XML-单</option>
+                            </select>
+                        <!-- </div> -->
+                    <!-- </div> -->
+                <!-- </div> -->
+            </form>
+        </div>
+
+        <div class="layui-input-inline" style="width: 60px;"><input type="search" name="x" value="x" id="x" class="layui-input" placeholder="x"></div>
+        <div class="layui-input-inline" style="width: 60px;"><input type="search" name="y" value="y" id="y" class="layui-input" placeholder="y"></div>
+        <div class="layui-input-inline" style="width: 60px;"><input type="search" name="w" value="w" id="w" class="layui-input" placeholder="宽"></div>
+        <div class="layui-input-inline" style="width: 60px;"><input type="search" name="h" value="h" id="h" class="layui-input" placeholder="高"></div>
+
+        <button id="downLoad" class="layui-btn layui-btn-normal layui-hide">批量下载下载</button>
+        <button class="layui-btn layui-btn-normal" onclick="window.location.reload();">重新加载</button>
+        <!-- 拖拽上传 -->
+        <style type="text/css">
+            .img_show{width:100%;height:250px;border:1px solid #e3e3e3;margin-top:10px;position:relative;
+                background-image:-webkit-repeating-linear-gradient(
+                   30deg,
+                   #F0F0F0 0,
+                   #E8E6E6 1px,
+                   #F5F5F5 0px,
+                   #E4E4E4 9px
+               );
+            }
+            .img_show p{
+                width:80%;height:100px;line-height:100px;font-size:34px;color:#fff;position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;text-align:center;
+
+                text-shadow:
+                0 0 10px #ff00ff,
+                0 0 20px #ff0066,
+                0 0 30px #cccc00,
+                0 0 50px #000;
+            }
+            .img_show img{position:absolute;left:0;top:0;width:100%;height:100%;cursor:nesw-resize;z-index:999;}
+            /*文本不换行 超出隐藏 省略..*/
+            .css-ellipsis{white-space:nowrap;text-overflow:ellipsis;-o-text-overflow:ellipsis;overflow:hidden;}
+        </style>
+        <div id="js-img_drag_box" class="img_show"><p class="css-ellipsis">拖拽图片裁剪</p></div>
+        <!-- 拖拽上传 -->
+    </div>
+  </div>
+
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">格式</h2>
+    <div class="layui-colla-content layui-show">
+        <textarea id="js-textarea" placeholder="请输入图片裁剪的json格式" autofocus="autofocus" class="layui-textarea" style="overflow:auto;margin-top:0px;margin-bottom:0px;height:130px;">
+{
+    "87564554":{"x":1882.5,"y":387,"w":122,"h":122},
+    "53878292":{"x":1105,"y":0,"w":132.5,"h":137},
+    "88259382":{"x":1925,"y":1002,"w":120.5,"h":106.5},
+    "45131319":{"x":485.5,"y":896.5,"w":128,"h":109.5}
+}
+    </textarea>
+    </div>
+  </div>
+
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">原图</h2>
+    <div class="layui-colla-content layui-show" style="position:relative;background:url(images/re-bg.jpg) repeat">
+        <div id="js-img-look" class="layui-layer-content" style="overflow: auto;min-height:50px;max-height:400px;padding:0;">
+            <!-- <div style="min-width: 1500px;height:50px;background: #ddd;"></div> -->
+            请手动上传需要裁剪的图片
+        </div>
+        <div id="luck-sliding" style="width:100%; height:10px; background:rgba(174,201,224,0.5); position:absolute; right:0; bottom:0px;cursor:n-resize"></div>
+    </div>
+  </div>
+
+
+
+  <div class="layui-colla-item">
+    <h2 class="layui-colla-title">裁图</h2>
+    <div id="js-maker-canvas" class="layui-colla-content layui-show" style="background:url(images/re-bg.jpg) repeat">被裁剪后的每一张小图片显示的位置</div>
+  </div>
+</div>
+
+
+</body>
+</html>
+
+<script type="text/javascript" src="js/layui/layui.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/ObjTree/ObjTree.js"></script>
+
+
+<script>
+//注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+layui.use(['element','layer','jquery','form'], function(){
+    element = layui.element;//面板折叠手风琴
+    layer = layui.layer;//弹窗
+    form = layui.form();
+    $ = layui.jquery;
+
+
+    var arr = localStorage.getItem("arr");
+    if( !!arr ){
+        var arr = JSON.parse(arr);
+        $('input[name="x"]').val(arr[0]);
+        $('input[name="y"]').val(arr[1]);
+        $('input[name="w"]').val(arr[2]);
+        $('input[name="h"]').val(arr[3]);
+    }
+    //事件监听
+    form.on('select', function(data) {
+        console.log(data);
+        ver = data.value;
+        localStorage.setItem("ver",ver);
+        if( ver == 2 || ver ==3){
+            $('input[name="x"]').val('-x');
+            $('input[name="y"]').val('-y');
+            $('input[name="w"]').val('-width');
+            $('input[name="h"]').val('-height');
+        }else{
+            $('input[name="x"]').val('x');
+            $('input[name="y"]').val('y');
+            $('input[name="w"]').val('w');
+            $('input[name="h"]').val('h');
+        }
+        var arr = [];
+        arr[0] = $('input[name="x"]').val();
+        arr[1] = $('input[name="y"]').val();
+        arr[2] = $('input[name="w"]').val();
+        arr[3] = $('input[name="h"]').val();
+        var arr = JSON.stringify(arr);
+        localStorage.setItem("arr",arr);
+    })
+
+
+    // ver = 0;//默认白鹭
+    ver = localStorage.getItem("ver");
+    if(  ver>-1 ){
+    }else{
+        ver = 0;
+        localStorage.setItem("ver",0);
+    }
+
+
+    //提交
+    document.getElementById('js-img-file').onchange = function(){
+        console.log( this.files[0] );
+        //开始裁剪
+        star_run(this.files[0]);
+    };
+
+    ///初始化文本域-本地存储
+    initTextarea();
+
+    //拖拽上传
+    img_drag(document.getElementById("js-img_drag_box"));
+
+    //批量下载
+    document.getElementById('downLoad').onclick = downLoad;
+
+    //开始裁剪
+    function star_run(files){
+        var x = document.getElementById('x').value;
+        var y = document.getElementById('y').value;
+        var w = document.getElementById('w').value;
+        var h = document.getElementById('h').value;
+        res_cai(files,[x,y,w,h],function(res){
+            if( document.getElementById('downLoad').className.indexOf('layui-hide') != -1){
+                document.getElementById('downLoad').classList.remove('layui-hide');
+            }
+            window.res = res;
+        });
+    }
+
+    //创建画布 粘贴 图片资源
+    function res_createCanvas(imgData,w,h){
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext("2d");
+        canvas.width = w;
+        canvas.height = h;
+        ctx.clearRect(0, 0, w,h); // canvas清屏
+        ctx.putImageData(imgData,0,0);
+        document.getElementById('js-maker-canvas').appendChild(canvas);
+        var base64 = canvas.toDataURL("image/png");
+        return base64;
+    }
+
+    //拖拽上传
+    function img_drag(_obj){
+        var box = _obj;
+        //目标元素进入时触发
+        box.ondragenter = function(ev){
+            var ev = ev || window.event;
+            ev.dataTransfer.effectAllowed = "copyLink";
+        }
+        //目标元素进入过程触发
+        box.ondragover = function(ev){
+            ev.preventDefault();//阻止默认事件        //就是当把文件拖入浏览器的时候会变成阅览文件
+            this.lastChild.innerHTML = '请松开鼠标左键';
+        }
+         //目标元素出去触发
+        box.ondragleave = function(){
+            this.lastChild.innerHTML = '图片可拖到此处';
+        }
+        //目标元素拖入结束
+        box.ondrop = function(ev){
+            ev.preventDefault();//阻止默认事件        //就是当把文件拖入浏览器的时候会变成阅览文件
+            var file = ev.dataTransfer.files;   //获取外部拖拽的文件
+            star_run(file[0]);
+        }
+    }
+
+    //批量下载
+    function downLoad(){
+        //  //加载层
+        // var index = layer.load(0, {
+        //     shade: 'background-color:rgba(0,0,0,.3)',//0代表加载的风格，支持0-2
+        //     shadeClose:false,//是否点击遮罩时关闭层
+        // });
+        // $.ajax({
+        //     url: "/users/upload",
+        //     type: "post",
+        //     dataType: "json",
+        //     data: res,
+        //     success: succesFunc,
+        //     error: errorFunc
+        // });
+        // function succesFunc(resquest) {
+        //     layer.close(index);//关闭弹窗
+        //     console.log(resquest)
+        // }
+        // function errorFunc(resquest) {
+        //     layer.close(index);//关闭弹窗
+        //     console.log(resquest)
+        // }
+
+        if( ver == 3){//单文件xml
+            var jsonData = {
+                "image_base64": res.base64,
+                "name": res.name
+            }
+            $.ajax({
+                url: "/users/upload",
+                type: "post",
+                dataType: "json",
+                data: jsonData,
+                success: succesFunc,
+                error: errorFunc
+            });
+        }else{
+            for(var o in res){
+                var jsonData = {
+                    "image_base64": res[o].base64,
+                    "name": res[o].name
+                }
+                $.ajax({
+                    url: "/users/upload",
+                    type: "post",
+                    dataType: "json",
+                    data: jsonData,
+                    success: succesFunc,
+                    error: errorFunc
+                });
+            }
+        }
+        function succesFunc(resquest) { console.log(resquest)}
+        function errorFunc(resquest) { console.log(resquest)}
+    };
+
+    //图片裁剪N张
+    function res_cai(file,arr,fn){
+        //加载层
+        var index = layer.load(0, {
+            shade: 'background-color:rgba(0,0,0,.3)',//0代表加载的风格，支持0-2
+            shadeClose:false,//是否点击遮罩时关闭层
+        });
+
+        var file = file;
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var imgData = e.target.result;
+            var img = new Image();
+            img.src = imgData;
+            img.onload = function(){
+                if( !canvas ){
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext("2d");
+                    document.getElementById('js-img-look').innerHTML = '';
+                    document.getElementById('js-img-look').appendChild(canvas);
+                    document.getElementById('js-maker-canvas').innerHTML = '';
+                }
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas清屏
+                ctx.drawImage(img, 0, 0, img.width, img.height); // 将图像绘制到canvas上
+
+                //版本
+                switch ( Number(ver) ) {
+                    case 0: //LayaBox版本
+                           try{
+                               $.each(res.frames, function(index, val) {
+                                    var o = index;
+                                    var d = val.frame;
+                                    var x = d[arr[0]];
+                                    var y = d[arr[1]];
+                                    var w = d[arr[2]];
+                                    var h = d[arr[3]];
+                                    var imgData = ctx.getImageData(x,y,w,h);
+                                    var base64 = res_createCanvas(imgData,w,h);
+                                    res.frames[o].name = o;
+                                    res.frames[o].base64 = base64.replace(/^data:image\/\w+;base64,/, "");
+                               });
+                               res = res.frames;
+                              //$(#a) 正确才会执行
+                            }catch(e){
+                                layer.msg('检查引擎或json格式是否正确', {icon: 5});
+                            }
+                        break;
+                    case 1: //白鹭版本
+                        try {
+                            for(var val in res.frames){
+                                var o = val;
+                                var d = res.frames[o];
+                                var x = d[arr[0]];
+                                var y = d[arr[1]];
+                                var w = d[arr[2]];
+                                var h = d[arr[3]];
+                                var imgData = ctx.getImageData(x, y, w, h);
+                                var base64 = res_createCanvas(imgData, w, h);
+                                res.frames[o].name = o;
+                                res.frames[o].base64 = base64.replace(/^data:image\/\w+;base64,/, "");
+                            }
+                            res = res.frames;
+                        } catch (e) {
+                            layer.msg('检查引擎或json格式是否正确', {icon: 5});
+                            //错误的执行
+                        }
+                        break;
+                    case 2: //其他 AG-XML
+                        try {
+                            res = res.TextureAtlas.SubTexture;
+                            for(var val in res){
+                                var o = val;
+                                var d = res[o];
+                                var x = d[arr[0]+''];
+                                var y = d[arr[1]+''];
+                                var w = d[arr[2]+''];
+                                var h = d[arr[3]+''];
+                                var imgData = ctx.getImageData(x, y, w, h);
+                                var base64 = res_createCanvas(imgData, w, h);
+                                res[o].name = d['-name'];
+                                res[o].base64 = base64.replace(/^data:image\/\w+;base64,/, "");
+                            }
+                        } catch (e) {
+                            layer.msg('检查引擎或json格式是否正确', {icon: 5});
+                            //错误的执行
+                        }
+                        break;
+                    case 3: //其他 AG-XML
+                        try {
+                            res = res.TextureAtlas.SubTexture;
+                            var d = res;
+                            var x = d[arr[0]+''];
+                            var y = d[arr[1]+''];
+                            var w = d[arr[2]+''];
+                            var h = d[arr[3]+''];
+                            var imgData = ctx.getImageData(x, y, w, h);
+                            var base64 = res_createCanvas(imgData, w, h);
+                            res.name = d['-name'];
+                            res.base64 = base64.replace(/^data:image\/\w+;base64,/, "");
+                        } catch (e) {
+                            layer.msg('检查引擎或json格式是否正确', {icon: 5});
+                            //错误的执行
+                        }
+                        break;
+                }
+
+                console.log( res );
+                fn && fn.call(this,res);
+
+                layer.close(index);//关闭弹窗
+            }
+        }
+        reader.readAsDataURL( file );
+    }
+
+
+    //初始化文本域-本地存储
+    function initTextarea(){
+        var val = localStorage.getItem("temp");
+        if( !!val ){
+            $('#js-textarea').val( val ).html(val);
+        };
+       $('#js-textarea').on('mouseover',function(event) {
+            this.select();
+        }).on('input',function(){
+            var str = $(this).val()
+
+
+            //  xml 转 json格式
+            if( Number(ver) == 2 || Number(ver)==3 && xml_2_json(str) ){
+                var str = xml_2_json(str);
+                localStorage.setItem("temp",str);
+                $(this).val(str).html(str);
+
+            }else{//json格式
+                localStorage.setItem("temp",str);
+            }
+
+            if( !!str  && str.replace(/[\s\t\r\n]/gi, "") ){
+                var str = str.replace(/[\s\t\r\n]/gi, "");
+                if( !!JSON.parse(str) ){
+                    res = JSON.parse(str) ;
+                }else{
+                    layer.msg('JSON格式错误', {icon: 5});
+                }
+                console.log( res );
+            }else{
+                layer.msg('字符串分割错误', {icon: 5});
+            }
+
+        }).trigger('input');
+    }
+
+
+});
+
+
+
+
+
+
+
+</script>
+
+
+<script>
+//拖拽拉升盒子宽高
+new function(){
+    var oDiv = document.getElementById('js-img-look');
+    var oDiv2 = document.getElementById('luck-sliding');
+    dragScale( oDiv, oDiv2 );
+    function  dragScale(oDiv,oDiv2){var disX = 0;var disY = 0;var disW = 0;var disH = 0;var a1 = arguments[2] || 100;var a2 = arguments[3] || 100;oDiv2.onmousedown = function(ev){var ev = ev || window.event;disX = ev.clientX;disY = ev.clientY;disW = oDiv.offsetWidth;disH = oDiv.offsetHeight;document.onmousemove = function(ev){var ev = ev || window.event;var W = ev.clientX - disX + disW;var H = ev.clientY - disY + disH;if(W<=a1){W = a1}if(H<=a2){H = a2}oDiv.style.height = H + 'px';oDiv.style.maxHeight = H + 'px'};document.onmouseup = function(){document.onmousemove = null;document.onmouseup = null}}}
+}
+</script>
+
+
+
+
+<script type="text/javascript">
+
+
+</script>
